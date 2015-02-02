@@ -17,20 +17,12 @@
  *  under the License.
  *
  */
-package io.fares.junit.classloader;
-
-import java.net.URL;
-
-import org.eclipse.aether.resolution.DependencyResolutionException;
+package io.fares.classloader;
 
 public interface ClassLoaderFactory {
 
-	public ClassLoader createClassLoader() throws DependencyResolutionException;
+	public ClassLoader createClassLoader();
 
-	public ClassLoader createClassLoader(ClassLoader parent,
-			Class<?>... jailInclusion) throws DependencyResolutionException;
-
-	public ClassLoader createClassLoader(ClassLoader parent, URL... urls)
-			throws DependencyResolutionException;
-
+	public ClassLoader createClassLoader(ClassLoader parent);
+	
 }

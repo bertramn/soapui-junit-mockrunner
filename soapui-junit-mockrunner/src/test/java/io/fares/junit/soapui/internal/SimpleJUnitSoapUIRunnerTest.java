@@ -19,88 +19,70 @@
  */
 package io.fares.junit.soapui.internal;
 
-import io.fares.aether.GuiceRepositorySystemFactory;
-import io.fares.junit.classloader.FilteringClassLoaderFactory;
-import io.fares.junit.soapui.SoapUIMock;
-import io.fares.junit.soapui.MockRunnerTask;
-
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.logging.Logger;
 
 import static org.junit.Assert.*;
 
-import org.junit.Ignore;
 import org.junit.Test;
-import org.apache.commons.io.IOUtils;
-import org.eclipse.aether.RepositorySystem;
+
+import io.fares.classloader.AetherClasspathResolver;
+import io.fares.classloader.ClasspathResolver;
+import io.fares.classloader.FilteringClassLoaderFactory;
+import static io.fares.junit.soapui.SoapUI.*;
+import static io.fares.junit.soapui.util.LousyWeatherTester.*;
+import io.fares.junit.soapui.SoapUIMock;
+import io.fares.junit.soapui.SoapUIMockExecutor;
+import io.fares.junit.soapui.MockRunnerTask;
 
 public class SimpleJUnitSoapUIRunnerTest {
 
 	public static Logger LOG = Logger
 			.getLogger(SimpleJUnitSoapUIRunnerTest.class.getName());
 
-	@Ignore("fails with some class cast exception, probably due to some weird classloader issue")
 	@Test
 	public void testRunner() throws Exception {
 
-		URL projectFile = getClass().getResource(
-				"/soapui/TestSoapUIProject-soapui-project.xml");
+		ClasspathResolver resolver = new AetherClasspathResolver();
 
-		assertNotNull("expect to find the soapui test resource", projectFile);
+		// first need to configure the resolver with soapui dependency and repo
+		resolver.addArtifact(newSoapUIArtifact());
 
-		// plain system repo
-		RepositorySystem system = GuiceRepositorySystemFactory
-				.newRepositorySystem();
+		// it pays to add central as well cause sometimes soapui does not
+		// contain all dependencies and we are not really reading the soapui pom
+		resolver.addRemoteRepository(newSoapUIRepository(),
+				newCentralRepository());
 
 		// hand it to the factory it will setup
-		FilteringClassLoaderFactory clf = new FilteringClassLoaderFactory();
-		clf.setRepositorySystem(system);
+		FilteringClassLoaderFactory clf = new FilteringClassLoaderFactory(
+				resolver);
 
-		MockRunnerTask task = new MockRunnerTask().withProjectFile(projectFile)
-				.withMockServiceName("WeatherMockService");
+		// add filters
+		clf.addPassFilters(DEFAULT_PASSFILTER);
+		clf.addBlockFilters(DEFAULT_BLOCKFILTER);
+
+		// include this test (basedir.target.test-classes)
+		clf.addIncludeClazzContainerURLs(getClass());
+
+		// alsways need to add the container of this class (self) as we need to
+		// get this through the filtering classloader else our code will fail
+		// with class cast exception
+		clf.addIncludeClazzContainerURLs(SoapUIMock.class, MockRunnerTask.class);
+
+		MockRunnerTask task = new MockRunnerTask().withProjectFile(
+				getWeatherMockSoapUIProject()).withMockServiceName(
+				"WeatherMockService");
 
 		// create a class loader with the tests classloader as parent
 		// this parent will be firewalled
-		ClassLoader cl = clf.createClassLoader(getClass().getClassLoader(),
-				SoapUIMock.class);
+		clf.setParentClassLoader(getClass().getClassLoader());
 
-		@SuppressWarnings("unchecked")
-		Class<SoapUIMock> executorClass = (Class<SoapUIMock>) cl
-				.loadClass("com.fleurida.junit.soapui.internal.SimpleJUnitSoapUIRunner");
-
-		if (!URLClassLoader.class.isAssignableFrom(executorClass
-				.getClassLoader().getClass())) {
-			System.err.println("executor is not in the right class loader");
-		}
-
-		SoapUIMock executor = (SoapUIMock) executorClass
-				.newInstance();
+		SoapUIMockExecutor executor = new SoapUIMockExecutor(clf,
+				SoapUIMockExecutor.SIMPLE_IMPL);
 
 		executor.start(task);
-
 		assertTrue(executor.isRunning());
-
-		HttpURLConnection con = (HttpURLConnection) new URL(
-				"http://localhost:8099/weather").openConnection();
-		con.setRequestMethod("POST");
-		con.addRequestProperty("Accept", "application/soap+xml");
-		con.addRequestProperty("Content-Type", "application/soap+xml");
-		con.setDoOutput(true);
-		con.getOutputStream()
-				.write("<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\"><soap:Header/><soap:Body><GetWeather xmlns=\"http://www.webserviceX.NET\"><CityName>Brisbane</CityName></GetWeather></soap:Body></soap:Envelope>"
-						.getBytes("UTF-8"));
-		InputStream is = con.getInputStream();
-
-		StringWriter writer = new StringWriter();
-		IOUtils.copy(is, writer, "UTF-8");
-		String rs = writer.toString();
-
+		String rs = testWeatherMockService();
 		LOG.info(rs);
-
 		executor.stop();
 
 	}

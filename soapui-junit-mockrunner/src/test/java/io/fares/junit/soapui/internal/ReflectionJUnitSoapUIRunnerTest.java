@@ -19,21 +19,20 @@
  */
 package io.fares.junit.soapui.internal;
 
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.logging.Logger;
 
 import static org.junit.Assert.*;
+
 import org.junit.Test;
 
-import org.apache.commons.io.IOUtils;
-
-import io.fares.junit.classloader.FilteringClassLoaderFactory;
+import io.fares.classloader.AetherClasspathResolver;
+import io.fares.classloader.ClasspathResolver;
+import io.fares.classloader.FilteringClassLoaderFactory;
+import static io.fares.junit.soapui.SoapUI.*;
+import static io.fares.junit.soapui.util.LousyWeatherTester.*;
 import io.fares.junit.soapui.SoapUIMock;
-import io.fares.junit.soapui.MockRunnerTask;
 import io.fares.junit.soapui.SoapUIMockExecutor;
+import io.fares.junit.soapui.MockRunnerTask;
 
 public class ReflectionJUnitSoapUIRunnerTest {
 
@@ -44,56 +43,47 @@ public class ReflectionJUnitSoapUIRunnerTest {
 	@Test
 	public void test() throws Exception {
 
-		URL projectFile = getClass().getResource(
-				"/soapui/TestSoapUIProject-soapui-project.xml");
+		ClasspathResolver resolver = new AetherClasspathResolver();
 
-		assertNotNull("expect to find the soapui test resource", projectFile);
+		// first need to configure the resolver with soapui dependency and repo
+		resolver.addArtifact(newSoapUIArtifact());
 
-		// plain system repo
+		// it pays to add central as well cause sometimes soapui does not
+		// contain all dependencies and we are not really reading the soapui pom
+		resolver.addRemoteRepository(newSoapUIRepository(),
+				newCentralRepository());
 
 		// hand it to the factory it will setup
-		FilteringClassLoaderFactory clf = new FilteringClassLoaderFactory();
+		FilteringClassLoaderFactory clf = new FilteringClassLoaderFactory(
+				resolver);
 
-		// need to add this classes bundle to the jail for testing, because we
-		// need to jail to also load the implementations of the
-		// JUnitSoapUIRunners .. not sure how to do it in real world yet
+		// add filters
+		clf.addPassFilters(DEFAULT_PASSFILTER);
+		clf.addBlockFilters(DEFAULT_BLOCKFILTER);
+
+		// include this test (basedir.target.test-classes)
+		clf.addIncludeClazzContainerURLs(getClass());
+
+		// alsways need to add the container of this class (self) as we need to
+		// get this through the filtering classloader else our code will fail
+		// with class cast exception
+		clf.addIncludeClazzContainerURLs(SoapUIMock.class, MockRunnerTask.class);
+
+		MockRunnerTask task = new MockRunnerTask().withProjectFile(
+				getWeatherMockSoapUIProject()).withMockServiceName(
+				"WeatherMockService");
 
 		// create a class loader with the tests classloader as parent
 		// this parent will be firewalled
-		ClassLoader cl = clf.createClassLoader(getClass().getClassLoader(),
-				SoapUIMock.class, MockRunnerTask.class, getClass());
+		clf.setParentClassLoader(getClass().getClassLoader());
 
-		SoapUIMockExecutor executor = new SoapUIMockExecutor(cl,
-				SoapUIMockExecutor.SIMPLE_IMPL);
+		SoapUIMockExecutor executor = new SoapUIMockExecutor(clf,
+				SoapUIMockExecutor.REFELCTION_IMPL);
 
-		MockRunnerTask task = new MockRunnerTask().withProjectFile(projectFile)
-				.withMockServiceName("WeatherMockService");
-
-		// start the mock
 		executor.start(task);
-
-		// test it out
-
 		assertTrue(executor.isRunning());
-
-		HttpURLConnection con = (HttpURLConnection) new URL(
-				"http://localhost:8099/weather").openConnection();
-		con.setRequestMethod("POST");
-		con.addRequestProperty("Accept", "application/soap+xml");
-		con.addRequestProperty("Content-Type", "application/soap+xml");
-		con.setDoOutput(true);
-		con.getOutputStream()
-				.write("<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\"><soap:Header/><soap:Body><GetWeather xmlns=\"http://www.webserviceX.NET\"><CityName>Brisbane</CityName></GetWeather></soap:Body></soap:Envelope>"
-						.getBytes("UTF-8"));
-		InputStream is = con.getInputStream();
-
-		StringWriter writer = new StringWriter();
-		IOUtils.copy(is, writer, "UTF-8");
-		String rs = writer.toString();
-
+		String rs = testWeatherMockService();
 		LOG.info(rs);
-
-		// stop it
 		executor.stop();
 
 	}

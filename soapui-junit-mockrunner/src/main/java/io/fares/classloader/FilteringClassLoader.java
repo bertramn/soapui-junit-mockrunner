@@ -17,9 +17,10 @@
  *  under the License.
  *
  */
-package io.fares.junit.classloader;
+package io.fares.classloader;
 
 import java.security.SecureClassLoader;
+import java.util.List;
 
 /**
  * Refer to <a href=
@@ -30,6 +31,7 @@ import java.security.SecureClassLoader;
  *
  */
 public class FilteringClassLoader extends SecureClassLoader {
+
 	private final String[] filters;
 	private final String[] fnFilters;
 	private final String[] negativeFilters;
@@ -57,6 +59,13 @@ public class FilteringClassLoader extends SecureClassLoader {
 	 */
 	public FilteringClassLoader(ClassLoader parent, String[] fs) {
 		this(parent, fs, new String[0]);
+	}
+
+	/**
+	 * See {@link #FilteringClassLoader(ClassLoader, String[])}
+	 */
+	public FilteringClassLoader(ClassLoader parent, List<String> fs) {
+		this(parent, (fs == null ? new String[0] : fs.toArray(new String[0])));
 	}
 
 	/**
@@ -123,6 +132,16 @@ public class FilteringClassLoader extends SecureClassLoader {
 					+ "FireWallClassLoader that does not let the java. "
 					+ "package through.");
 		}
+	}
+
+	/**
+	 * See {@link #FilteringClassLoader(ClassLoader, String[], String[])}
+	 */
+	public FilteringClassLoader(ClassLoader parent, List<String> fs,
+			List<String> negativeFs) {
+		this(parent, (fs == null ? new String[0] : fs.toArray(new String[0])),
+				(negativeFs == null ? new String[0] : negativeFs
+						.toArray(new String[0])));
 	}
 
 	private static String[] processFilters(String[] fs) {

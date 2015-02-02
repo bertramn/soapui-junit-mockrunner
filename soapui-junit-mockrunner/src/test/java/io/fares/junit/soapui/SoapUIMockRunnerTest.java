@@ -19,68 +19,41 @@
  */
 package io.fares.junit.soapui;
 
-import io.fares.junit.soapui.SoapUIMockRunner;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.*;
 
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.commons.io.IOUtils;
+
+import static io.fares.junit.soapui.util.LousyWeatherTester.*;
+import io.fares.junit.soapui.SoapUIMockRunner;
 
 public class SoapUIMockRunnerTest {
 
-	public static Logger LOG = Logger.getLogger(SoapUIMockRunnerTest.class
-			.getName());
+	public static Logger LOG = LoggerFactory
+			.getLogger(SoapUIMockRunnerTest.class);
 
 	@ClassRule
-	public static SoapUIMockRunner runner = new SoapUIMockRunner()
-			.simpleBinding()
-			.withProjectPath("soapui/TestSoapUIProject-soapui-project.xml")
+	public static SoapUIMockRunner soapui = new SoapUIMockRunner()
+			.simpleBinding().withProjectPath(getWeatherMockSoapUIProject())
 			.withMockServiceName("WeatherMockService")
 			.withMockHost("localhost").withMockPort(8080)
 			.withMockPath("/weather-change");
 
 	@Test
 	public void testMockRunner() throws Exception {
-		assertTrue(runner.isRunning());
-		String result = testMockService(runner.getMockEndpoint());
+		assertTrue(soapui.isRunning());
+		String result = testWeatherMockService(soapui.getMockEndpoint());
 		assertNotNull(result);
 	}
 
 	@Test
 	public void testMockRunnerAgain() throws Exception {
-		assertTrue(runner.isRunning());
-		String result = testMockService(runner.getMockEndpoint());
+		assertTrue(soapui.isRunning());
+		String result = testWeatherMockService(soapui.getMockEndpoint());
 		assertNotNull(result);
-	}
-
-	public static String testMockService(String endpoint)
-			throws MalformedURLException, IOException {
-
-		HttpURLConnection con = (HttpURLConnection) new URL(endpoint)
-				.openConnection();
-		con.setRequestMethod("POST");
-		con.addRequestProperty("Accept", "application/soap+xml");
-		con.addRequestProperty("Content-Type", "application/soap+xml");
-		con.setDoOutput(true);
-		con.getOutputStream()
-				.write("<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\"><soap:Header/><soap:Body><GetWeather xmlns=\"http://www.webserviceX.NET\"><CityName>Brisbane</CityName></GetWeather></soap:Body></soap:Envelope>"
-						.getBytes("UTF-8"));
-		InputStream is = con.getInputStream();
-		StringWriter writer = new StringWriter();
-		IOUtils.copy(is, writer, "UTF-8");
-		String rs = writer.toString();
-		LOG.fine(rs);
-		return rs;
-
 	}
 
 }

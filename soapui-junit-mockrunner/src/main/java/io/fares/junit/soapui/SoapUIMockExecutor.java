@@ -19,6 +19,7 @@
  */
 package io.fares.junit.soapui;
 
+import io.fares.classloader.ClassLoaderFactory;
 import io.fares.junit.soapui.internal.ReflectionJUnitSoapUIRunner;
 import io.fares.junit.soapui.internal.SimpleJUnitSoapUIRunner;
 
@@ -27,6 +28,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+// TODO annotate with "needs class loader factory"
 public final class SoapUIMockExecutor implements SoapUIMock {
 
 	public static final String REFELCTION_IMPL = ReflectionJUnitSoapUIRunner.class
@@ -35,44 +37,41 @@ public final class SoapUIMockExecutor implements SoapUIMock {
 	public static final String SIMPLE_IMPL = SimpleJUnitSoapUIRunner.class
 			.getName();
 
-	public static final String[] DEFAULT_PASSFILTER = new String[] { //
-	"java.", //
-			"javax.swing.", //
-			"javax.crypto.", //
-			"javax.net.", //
-			"sun.", //
-			"javax.security.", //
-			"org.unitils.", //
-			SoapUIMock.class.getPackage().getName() + '.' };
-
-	public static final String[] DEFAULT_BLOCKFILTER = new String[] {
-			"com.eviware.", "org.apache.",
-			SoapUIMock.class.getPackage().getName() + ".internal." }
-
-	;
-
 	private static ExecutorService service = Executors.newCachedThreadPool();
 
-	SoapUIMock delegate;
+	/**
+	 * The mock runner delegate responsible for managing the actual SoapUI mock
+	 * service execution
+	 */
+	private SoapUIMock delegate;
 
-	ClassLoader filteringClassLoader;
+	/**
+	 * The classloader factory which will be used to create the classloader that
+	 * will in turn be used to load and execute the soapui mock
+	 */
+	private ClassLoaderFactory classLoaderFactory;
 
-	String implClassName;
+	/**
+	 * The name of the {@link SoapUIMock} implementation used to load the
+	 * delegate
+	 */
+	private String implClassName;
 
 	protected SoapUIMockExecutor() {
 	}
 
-	public SoapUIMockExecutor(ClassLoader filteringClassLoader, String implClassName) {
-		this.filteringClassLoader = filteringClassLoader;
+	public SoapUIMockExecutor(ClassLoaderFactory classLoaderFactory,
+			String implClassName) {
+		this.classLoaderFactory = classLoaderFactory;
 		this.implClassName = implClassName;
 	}
 
 	@Override
 	public void start(final MockRunnerTask task) {
 
-		if (filteringClassLoader == null) {
+		if (classLoaderFactory == null) {
 			throw new RuntimeException(
-					"A filtering classloader must be configured");
+					"A filtering classloader factory must be configured");
 		}
 
 		if (implClassName == null) {
@@ -80,12 +79,16 @@ public final class SoapUIMockExecutor implements SoapUIMock {
 					"A implementation class name must be configured");
 		}
 
-		// run up a future
-		Future<SoapUIMock> srf = service.submit(new CallableRunner(
-				filteringClassLoader, implClassName, task));
-
 		try {
+
+			// run up a future
+			Future<SoapUIMock> srf = service
+					.submit(new CallableRunner(classLoaderFactory
+							.createClassLoader(), implClassName, task));
+
+			// better to wait until this whole mock is loaded
 			delegate = srf.get();
+
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to start soapui runner thread",
 					e);
