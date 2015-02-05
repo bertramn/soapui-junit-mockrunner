@@ -11,6 +11,43 @@
 	with any project dependencies that are under test. The mockrunner uses Plexus Classworlds/Container and Aether
 	to decouple the execution of the mock from the projects under test.</description>
 
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent>
+
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	<organization>
+		<name>The Apache Software Foundation</name>
+		<url>http://www.apache.org/</url>
+	</organization>
+
+	<developers>
+		<developer>
+			<name>Niels Bertram</name>
+			<email>niels.bertram@fares.io</email>
+			<url>https://plus.google.com/+NielsBertram</url>
+			<organization>fares.io</organization>
+			<organizationUrl>http://fares.io/</organizationUrl>
+			<properties>
+				<picUrl>http://fares.io/images/cxf.png</picUrl>
+			</properties>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:https://github.com/bertramn/soapui-junit-mockrunner.git</connection>
+		<developerConnection>scm:git:https://github.com/bertramn/soapui-junit-mockrunner.git</developerConnection>
+		<url>https://github.com/bertramn/soapui-junit-mockrunner.git</url>
+	</scm>
+
 	<properties>
 		<soapui.version>5.0.0</soapui.version>
 		<soapui.xbean.version>fixed-2.4.0</soapui.xbean.version>
@@ -30,6 +67,9 @@
 		<module>soapui-junit-mockrunner</module>
 		<module>soapui-junit-mockrunner-tests</module>
 	</modules>
+
+
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -139,6 +179,11 @@
 				<groupId>org.eclipse.aether</groupId>
 				<artifactId>aether-transport-http</artifactId>
 				<version>${aether.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.maven</groupId>
+				<artifactId>maven-settings-builder</artifactId>
+				<version>${maven.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.maven</groupId>
@@ -257,10 +302,10 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-release-plugin</artifactId>
-					<version>2.5.3</version>
+					<version>2.5.1</version>
 					<configuration>
 						<!-- dont push changes remotely ... override if needed -->
-						<pushChanges>true</pushChanges>
+						<pushChanges>false</pushChanges>
 					</configuration>
 				</plugin>
 				<!--This plugin's configuration is used to store Eclipse m2e settings 
