@@ -20,6 +20,7 @@ public class SoapUI {
 			"javax.swing.", //
 			"javax.crypto.", //
 			"javax.net.", //
+			"javax.script.",//
 			"sun.", //
 			"javax.security.", //
 			"org.unitils.", //
