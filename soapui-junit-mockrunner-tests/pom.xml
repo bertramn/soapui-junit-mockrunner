@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>io.fares.junit.soapui</groupId>
 		<artifactId>soapui-junit-mockrunner-project</artifactId>
-		<version>0.0.2-SNAPSHOT</version>
+		<version>0.0.2</version>
 	</parent>
 	<artifactId>soapui-junit-mockrunner-tests</artifactId>
 	<packaging>jar</packaging>

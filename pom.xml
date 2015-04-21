@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.fares.junit.soapui</groupId>
 	<artifactId>soapui-junit-mockrunner-project</artifactId>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>0.0.2</version>
 	<packaging>pom</packaging>
 	<name>SoapUI JUnit MockRunner Project</name>
 	<description>This application will bootstrap SoapUI Mock in its own classloader context to prevent clashes 
@@ -38,7 +38,7 @@
 		<connection>scm:git:https://github.com/bertramn/soapui-junit-mockrunner.git</connection>
 		<developerConnection>scm:git:https://github.com/bertramn/soapui-junit-mockrunner.git</developerConnection>
 		<url>https://github.com/bertramn/soapui-junit-mockrunner.git</url>
-		<tag>HEAD</tag>
+		<tag>soapui-junit-mockrunner-project-0.0.2</tag>
 	</scm>
 
 	<properties>
