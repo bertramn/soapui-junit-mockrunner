@@ -9,13 +9,11 @@
 	<description>This application will bootstrap SoapUI Mock in its own classloader context to prevent clashes 
 	with any project dependencies that are under test. The mockrunner uses Plexus Classworlds/Container and Aether
 	to decouple the execution of the mock from the projects under test.</description>
-
 	<parent>
 		<groupId>org.sonatype.oss</groupId>
 		<artifactId>oss-parent</artifactId>
-		<version>7</version>
+		<version>9</version>
 	</parent>
-
 	<licenses>
 		<license>
 			<name>The Apache Software License, Version 2.0</name>
@@ -23,11 +21,6 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
-	<organization>
-		<name>The Apache Software Foundation</name>
-		<url>http://www.apache.org/</url>
-	</organization>
-
 	<developers>
 		<developer>
 			<name>Niels Bertram</name>
@@ -45,8 +38,8 @@
 		<connection>scm:git:https://github.com/bertramn/soapui-junit-mockrunner.git</connection>
 		<developerConnection>scm:git:https://github.com/bertramn/soapui-junit-mockrunner.git</developerConnection>
 		<url>https://github.com/bertramn/soapui-junit-mockrunner.git</url>
-	  <tag>HEAD</tag>
-  </scm>
+		<tag>HEAD</tag>
+	</scm>
 
 	<properties>
 		<soapui.version>5.0.0</soapui.version>
@@ -67,8 +60,6 @@
 		<module>soapui-junit-mockrunner</module>
 		<module>soapui-junit-mockrunner-tests</module>
 	</modules>
-
-
 
 	<dependencyManagement>
 		<dependencies>
@@ -94,19 +85,16 @@
 					</exclusion>
 				</exclusions>
 			</dependency>
-
 			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
 				<version>${junit.version}</version>
 			</dependency>
-
 			<dependency>
 				<groupId>org.unitils</groupId>
 				<artifactId>unitils-core</artifactId>
 				<version>${reflection.util.version}</version>
 			</dependency>
-
 			<dependency>
 				<groupId>org.eclipse.sisu</groupId>
 				<artifactId>org.eclipse.sisu.inject</artifactId>
@@ -144,7 +132,6 @@
 				<artifactId>plexus-utils</artifactId>
 				<version>${plexus-utils.version}</version>
 			</dependency>
-
 			<dependency>
 				<groupId>org.eclipse.aether</groupId>
 				<artifactId>aether-api</artifactId>
@@ -248,6 +235,17 @@
 	<build>
 		<pluginManagement>
 			<plugins>
+				<plugin>
+					<groupId>org.sonatype.plugins</groupId>
+					<artifactId>nexus-staging-maven-plugin</artifactId>
+					<version>1.6.5</version>
+					<extensions>true</extensions>
+					<configuration>
+						<serverId>sonatype-nexus-snapshots</serverId>
+						<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+						<autoReleaseAfterClose>true</autoReleaseAfterClose>
+					</configuration>
+				</plugin>
 				<!-- compiler plugin with JAXB and JAXWS endorsed APIs -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -297,15 +295,15 @@
 					<artifactId>maven-clean-plugin</artifactId>
 					<version>2.5</version>
 				</plugin>
-
-				<!-- release plugin -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-release-plugin</artifactId>
 					<version>2.5.1</version>
 					<configuration>
-						<!-- dont push changes remotely ... override if needed -->
-						<pushChanges>false</pushChanges>
+						<autoVersionSubmodules>true</autoVersionSubmodules>
+						<useReleaseProfile>false</useReleaseProfile>
+						<releaseProfiles>release</releaseProfiles>
+						<goals>deploy</goals>
 					</configuration>
 				</plugin>
 				<!--This plugin's configuration is used to store Eclipse m2e settings 
