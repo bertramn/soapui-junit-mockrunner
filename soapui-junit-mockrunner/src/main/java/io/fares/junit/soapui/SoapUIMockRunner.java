@@ -79,10 +79,13 @@ public class SoapUIMockRunner implements TestRule {
 	 * If you really must, just make sure your filters allow the SoapUI to find
 	 * all its dependencies above the filtering class loader, else class cast
 	 * nightmare.
-	 * 
+	 *
 	 * @param passFilters
+     *             class or package names that need to be passed to the parent classloader
+     *
 	 * @param blockFilters
-	 * 
+     *              class or package names that must be blocked from going to the parent classloader
+	 *
 	 */
 	public SoapUIMockRunner(String[] passFilters, String[] blockFilters) {
 		addPassFilters(passFilters);
@@ -192,9 +195,10 @@ public class SoapUIMockRunner implements TestRule {
 
 	/**
 	 * set the project path of the SoapUI project
-	 * 
+	 *
 	 * @param resourcePath
 	 *            the resource's classpath
+     *
 	 * @return this rule
 	 */
 	public SoapUIMockRunner withProjectPath(String resourcePath) {
@@ -249,13 +253,14 @@ public class SoapUIMockRunner implements TestRule {
 	 * Sets the version of soapui to use. Obviously this is dependent on the
 	 * version of soapui this library was compiled against. if not specified, it
 	 * will use the default version with which this module was compiled with.
-	 * 
+	 *
 	 * Check which version is default by running {@link SoapUI#version()}.
-	 * 
+	 *
 	 * @param version
 	 *            the soapui version to use (note it currently does not do any
 	 *            checks so one could force down anything)
-	 * @return
+     *
+	 * @return a configured mock runner
 	 */
 	public SoapUIMockRunner soapuiVersion(String version) {
 		this.soapuiVersion = version;

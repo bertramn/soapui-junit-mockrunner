@@ -61,9 +61,26 @@ public class FilteringClassLoader extends SecureClassLoader {
 		this(parent, fs, new String[0]);
 	}
 
-	/**
-	 * See {@link #FilteringClassLoader(ClassLoader, String[])}
-	 */
+    /**
+     * Constructor.
+     *
+     * @param parent
+     *            The Parent ClassLoader to use.
+     * @param fs
+     *            A set of filters to let through. The filters and be either in
+     *            package form (<CODE>org.omg.</CODE> or <CODE>org.omg.*</CODE>)
+     *            or specify a single class (
+     *            <CODE>junit.framework.TestCase</CODE>).
+     *            <P>
+     *            When the package form is used, all classed in all subpackages
+     *            of this package are let trough the firewall. When the class
+     *            form is used, the filter only lets that single class through.
+     *            Note that when that class depends on another class, this class
+     *            does not need to be mentioned as a filter, because if the
+     *            originating class is loaded by the parent classloader, the
+     *            FireWallClassLoader will not receive requests for the
+     *            dependant class.
+     */
 	public FilteringClassLoader(ClassLoader parent, List<String> fs) {
 		this(parent, (fs == null ? new String[0] : fs.toArray(new String[0])));
 	}
@@ -134,9 +151,32 @@ public class FilteringClassLoader extends SecureClassLoader {
 		}
 	}
 
-	/**
-	 * See {@link #FilteringClassLoader(ClassLoader, String[], String[])}
-	 */
+    /**
+     * Constructor.
+     *
+     * @param parent
+     *            The Parent ClassLoader to use.
+     * @param fs
+     *            A set of filters to let through. The filters and be either in
+     *            package form (<CODE>org.omg.</CODE> or <CODE>org.omg.*</CODE>)
+     *            or specify a single class (
+     *            <CODE>junit.framework.TestCase</CODE>).
+     *            <P>
+     *            When the package form is used, all classed in all subpackages
+     *            of this package are let trough the firewall. When the class
+     *            form is used, the filter only lets that single class through.
+     *            Note that when that class depends on another class, this class
+     *            does not need to be mentioned as a filter, because if the
+     *            originating class is loaded by the parent classloader, the
+     *            FireWallClassLoader will not receive requests for the
+     *            dependant class.
+     * @param negativeFs
+     *            List of negative filters to use. Negative filters take
+     *            precedence over positive filters. When a class or resource is
+     *            requested that matches a negative filter it is not let through
+     *            the firewall even if an allowing filter would exist in the
+     *            positive filter list.
+     */
 	public FilteringClassLoader(ClassLoader parent, List<String> fs,
 			List<String> negativeFs) {
 		this(parent, (fs == null ? new String[0] : fs.toArray(new String[0])),

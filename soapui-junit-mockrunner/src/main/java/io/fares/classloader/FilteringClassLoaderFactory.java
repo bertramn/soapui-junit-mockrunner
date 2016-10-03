@@ -107,12 +107,14 @@ public class FilteringClassLoaderFactory implements ClassLoaderFactory {
 	}
 
 	/**
-	 * Same as {@link #setAllowFilters(List)} only that this will add to
+	 * Same as {@link #addPassFilters(List)} only that this will add to
 	 * existing filters instead of overriding them.
 	 * 
 	 * @param filters
 	 *            a list of filters to add to the allow filters
-	 * 
+	 *
+	 * @return the factory
+	 *
 	 */
 	public FilteringClassLoaderFactory addPassFilters(String... filters) {
 		if (filters != null && filters.length > 0) {
@@ -122,7 +124,13 @@ public class FilteringClassLoaderFactory implements ClassLoaderFactory {
 	}
 
 	/**
-	 * See {@link #addPassFilters(String...)}
+	 * Add filters used to pass the class resolution to the parent classloader.
+	 *
+	 * @param filters
+	 *            a list of filters to add to the allow filters
+	 *
+	 * @return the factory
+	 *
 	 */
 	public FilteringClassLoaderFactory addPassFilters(List<String> filters) {
 		if (filters != null && filters.size() > 0) {
@@ -159,7 +167,9 @@ public class FilteringClassLoaderFactory implements ClassLoaderFactory {
 	 * 
 	 * @param filters
 	 *            a list of filters to add to the block filter
-	 * 
+	 *
+	 * @return the factory
+	 *
 	 */
 	public FilteringClassLoaderFactory addBlockFilters(String... filters) {
 		if (filters != null && filters.length > 0) {
@@ -168,6 +178,16 @@ public class FilteringClassLoaderFactory implements ClassLoaderFactory {
 		return this;
 	}
 
+	/**
+	 * Same as {@link #setBlockFilters(List)} only that this will add to
+	 * existing filters instead of overriding them.
+	 *
+	 * @param filters
+	 *            a list of filters to add to the block filter
+	 *
+	 * @return the factory
+	 *
+	 */
 	public FilteringClassLoaderFactory addBlockFilters(List<String> filters) {
 		if (filters != null && filters.size() > 0) {
 			getBlockFilters().addAll(filters);

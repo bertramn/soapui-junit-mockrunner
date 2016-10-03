@@ -8,15 +8,18 @@
 *.war
 *.ear
 
-logs/*
-target
+target/
 .project
 .classpath
-.settings
+.settings/
 .metadata
 .checkstyle
 .springBeans
 .externalToolBuilders
+.idea/
+*.iml
+
+logs/*
 *.log
 .DS_Store
 *.ldb
