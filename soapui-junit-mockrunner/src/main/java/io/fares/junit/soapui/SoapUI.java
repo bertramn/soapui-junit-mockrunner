@@ -35,11 +35,12 @@ public class SoapUI {
 			.getLogger(SoapUI.class.getName());
 
 	public static final String[] DEFAULT_PASSFILTER = new String[] { //
-	"java.", //
+			"java.", //
 			"javax.swing.", //
+			"javax.naming.", //
 			"javax.crypto.", //
 			"javax.net.", //
-			"javax.script.",//
+			"javax.script.", //
 			"sun.", //
 			"javax.security.", //
 			"org.unitils.", //
