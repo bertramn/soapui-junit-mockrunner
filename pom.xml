@@ -290,7 +290,7 @@
         <plugin>
           <groupId>org.sonatype.plugins</groupId>
           <artifactId>nexus-staging-maven-plugin</artifactId>
-          <version>1.6.7</version>
+          <version>1.6.8</version>
           <extensions>true</extensions>
           <configuration>
             <serverId>ossrh</serverId>
@@ -304,8 +304,8 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.1</version>
           <configuration>
-            <source>${maven.compile.source}</source>
-            <target>${maven.compile.target}</target>
+            <source>1.7</source>
+            <target>1.7</target>
             <!-- compiler debug -->
             <debug>true</debug>
             <debuglevel>lines,vars,source</debuglevel>
@@ -359,29 +359,6 @@
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-enforcer-plugin</artifactId>
-          <version>1.4.1</version>
-          <executions>
-            <execution>
-              <id>enforce-versions</id>
-              <goals>
-                <goal>enforce</goal>
-              </goals>
-              <configuration>
-                <rules>
-                  <requireMavenVersion>
-                    <version>3.1.0</version>
-                  </requireMavenVersion>
-                  <requireJavaVersion>
-                    <version>1.6</version>
-                  </requireJavaVersion>
-                </rules>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-source-plugin</artifactId>
           <version>3.0.1</version>
           <executions>
@@ -403,6 +380,29 @@
               <goals>
                 <goal>jar</goal>
               </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>1.4.1</version>
+          <executions>
+            <execution>
+              <id>enforce-versions</id>
+              <goals>
+                <goal>enforce</goal>
+              </goals>
+              <configuration>
+                <rules>
+                  <requireMavenVersion>
+                    <version>3.1.0</version>
+                  </requireMavenVersion>
+                  <requireJavaVersion>
+                    <version>1.7</version>
+                  </requireJavaVersion>
+                </rules>
+              </configuration>
             </execution>
           </executions>
         </plugin>
@@ -497,48 +497,29 @@
 
   <profiles>
     <profile>
-      <id>jdk-6</id>
+      <id>release</id>
       <activation>
-        <activeByDefault>false</activeByDefault>
-        <jdk>1.6</jdk>
+        <property>
+          <name>performRelease</name>
+          <value>true</value>
+        </property>
       </activation>
-      <properties>
-        <maven.compile.source>1.6</maven.compile.source>
-        <maven.compile.target>1.6</maven.compile.target>
-      </properties>
-    </profile>
-    <profile>
-      <id>jdk-7</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-        <jdk>1.7</jdk>
-      </activation>
-      <properties>
-        <maven.compile.source>1.7</maven.compile.source>
-        <maven.compile.target>1.7</maven.compile.target>
-      </properties>
-    </profile>
-    <profile>
-      <id>jdk-8</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-        <jdk>1.8</jdk>
-      </activation>
-      <properties>
-        <maven.compile.source>1.8</maven.compile.source>
-        <maven.compile.target>1.8</maven.compile.target>
-      </properties>
-    </profile>
-    <profile>
-      <id>jdk-9</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-        <jdk>1.9</jdk>
-      </activation>
-      <properties>
-        <maven.compile.source>1.9</maven.compile.source>
-        <maven.compile.target>1.9</maven.compile.target>
-      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
   </profiles>
 
